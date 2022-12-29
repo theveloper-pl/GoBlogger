@@ -29,6 +29,7 @@ func main() {
   r.Static("/static", "./static/")
 
   r.GET("", home)
+  r.GET("posts", posts)
 
   r.Run() 
 }
@@ -36,7 +37,7 @@ func main() {
 func home(c *gin.Context){
 
 	models := data.New(db)
-	posts, err := models.Post.GetAll(1)
+	posts, err := models.Post.GetAll(4)
 	if err != nil {
 		fmt.Println(err)
 	  }
@@ -46,6 +47,22 @@ func home(c *gin.Context){
 	dataMap["posts"] = posts
 
 	c.HTML(http.StatusOK,"home.html",gin.H{"Data": dataMap,},)
+
+}
+
+func posts(c *gin.Context){
+
+	models := data.New(db)
+	posts, err := models.Post.GetAll()
+	if err != nil {
+		fmt.Println(err)
+	  }
+
+
+	dataMap := make(map[string]any)
+	dataMap["posts"] = posts
+
+	c.HTML(http.StatusOK,"post.html",gin.H{"Data": dataMap,},)
 
 }
 
