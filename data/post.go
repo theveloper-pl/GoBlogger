@@ -8,6 +8,7 @@ import (
 
 type Post struct {
 	ID        	int
+	UserID		int
 	Title     	string
 	Description string
 	Short string
@@ -21,6 +22,7 @@ func (u *Post) GetAll() ([]*Post, error) {
 	query := `
 	select 
     	id, 
+		user_id,
 		title,
 		description,
 		short,
@@ -42,6 +44,7 @@ func (u *Post) GetAll() ([]*Post, error) {
 		var post Post
 		err := rows.Scan(
 			&post.ID,
+			&post.UserID,
 			&post.Title,			
 			&post.Description,
 			&post.Short,
@@ -63,7 +66,7 @@ func (u *Post) GetOne(id int) (*Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, title, description, short, created_at
+	query := `select id, user_id, title, description, short, created_at
 				from posts 
 				where id = $1`
 
@@ -72,6 +75,7 @@ func (u *Post) GetOne(id int) (*Post, error) {
 
 	err := row.Scan(
 		&post.ID,
+		&post.UserID,
 		&post.Title,
 		&post.Description,
 		&post.Short,
