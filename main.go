@@ -7,6 +7,7 @@ import (
   "log"
   "fmt"
   "time"
+  "main/Blogger/data"
   _ "github.com/lib/pq"
 )
 
@@ -14,10 +15,11 @@ const POSTGRES_USER = "postgres"
 const POSTGRES_PASSWORD = "password"
 const POSTGRES_DB = "blogger"
 
-func main() {
-  db := initDB()
-  err := db.Ping()
+var db *sql.DB
 
+func main() {
+  db = initDB()	
+  err := db.Ping()
   if err != nil {
 	fmt.Println(err)
   }
@@ -36,7 +38,21 @@ func home(c *gin.Context){
 	// 	"message": "pong",
 	//   })
 
-	c.HTML(http.StatusOK,"home.html",gin.H{"title": "Home Page",},)
+	models := data.New(db)
+	posts, err := models.Post.GetAll()
+	// posts, err := model.GetOne(1)
+	if err != nil {
+		fmt.Println(err)
+	  }
+
+	  fmt.Print(posts)
+	//   Data: dataMap,
+	// c.HTML(http.StatusOK,"home.html",gin.H{"title": "Home Page",},)
+
+	dataMap := make(map[string]any)
+	dataMap["posts"] = posts
+
+	c.HTML(http.StatusOK,"home.html",gin.H{"Data": dataMap,},)
 
 }
 
