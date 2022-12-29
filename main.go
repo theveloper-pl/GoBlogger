@@ -34,20 +34,13 @@ func main() {
 }
 
 func home(c *gin.Context){
-    // c.JSON(http.StatusOK, gin.H{
-	// 	"message": "pong",
-	//   })
 
 	models := data.New(db)
-	posts, err := models.Post.GetAll()
-	// posts, err := model.GetOne(1)
+	posts, err := models.Post.GetAll(1)
 	if err != nil {
 		fmt.Println(err)
 	  }
 
-	  fmt.Print(posts)
-	//   Data: dataMap,
-	// c.HTML(http.StatusOK,"home.html",gin.H{"title": "Home Page",},)
 
 	dataMap := make(map[string]any)
 	dataMap["posts"] = posts

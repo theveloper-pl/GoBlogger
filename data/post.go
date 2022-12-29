@@ -2,6 +2,7 @@ package data
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"time"
 )
@@ -16,9 +17,11 @@ type Post struct {
 	CreatedAt 			time.Time
 }
 
-func (u *Post) GetAll() ([]*Post, error) {
+func (u *Post) GetAll(limit ...int) ([]*Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
+
+	fmt.Print(len(limit))
 
 	query := `
 	select 
@@ -33,7 +36,12 @@ func (u *Post) GetAll() ([]*Post, error) {
 	    posts 
     left join users on users.id=posts.user_id
 	order by 
-		created_at`
+		created_at`	
+
+
+	if len(limit)==1{
+	query = fmt.Sprintf(`%v limit %v `,query ,len(limit))
+	}
 
 	rows, err := db.QueryContext(ctx, query)
 	if err != nil {
