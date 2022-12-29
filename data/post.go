@@ -7,12 +7,13 @@ import (
 )
 
 type Post struct {
-	ID        	int
-	UserID		int
-	Title     	string
-	Description string
-	Short string
-	CreatedAt time.Time
+	ID        			int
+	UserFirstName     	string
+	UserLastName     	string
+	Title     			string
+	Description 		string
+	Short 				string
+	CreatedAt 			time.Time
 }
 
 func (u *Post) GetAll() ([]*Post, error) {
@@ -21,14 +22,16 @@ func (u *Post) GetAll() ([]*Post, error) {
 
 	query := `
 	select 
-    	id, 
-		user_id,
+    	posts.id, 
+		first_name,
+		last_name,
 		title,
 		description,
 		short,
-		created_at
+		posts.created_at
 	from 
 	    posts 
+    left join users on users.id=posts.user_id
 	order by 
 		created_at`
 
@@ -44,7 +47,8 @@ func (u *Post) GetAll() ([]*Post, error) {
 		var post Post
 		err := rows.Scan(
 			&post.ID,
-			&post.UserID,
+			&post.UserFirstName,
+			&post.UserLastName,
 			&post.Title,			
 			&post.Description,
 			&post.Short,
@@ -66,16 +70,33 @@ func (u *Post) GetOne(id int) (*Post, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), dbTimeout)
 	defer cancel()
 
-	query := `select id, user_id, title, description, short, created_at
-				from posts 
-				where id = $1`
+	query := `
+	select 
+	posts.id, 
+	first_name,
+	last_name,
+	title,
+	description,
+	short,
+	posts.created_at
+from 
+	posts
+left join users on users.id=posts.user_id
+where posts.id = 1
+order by 
+	created_at`
+
+	// query := `select id, user_id, title, description, short, created_at
+	// 			from posts 
+	// 			where id = $1`
 
 	var post Post
 	row := db.QueryRowContext(ctx, query, id)
 
 	err := row.Scan(
 		&post.ID,
-		&post.UserID,
+		&post.UserFirstName,
+		&post.UserLastName,
 		&post.Title,
 		&post.Description,
 		&post.Short,
