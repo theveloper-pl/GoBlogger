@@ -9,16 +9,24 @@ Docker
 
 ## Installation
 Clone the repository to your local machine:
+```
 git clone https://github.com/theveloper-pl/GoBlogger.git
+```
 
 Navigate to the project directory:
+```
 cd golang-gin-gorm-blog
+```
 
 Build the Docker containers:
+```
 docker-compose build
+```
 
 Run the Docker containers:
+```
 docker-compose up
+```
 
 The website will be running on localhost:8080.
 
