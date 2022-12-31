@@ -36,3 +36,9 @@ type UserPost struct {
 	Short 				string
 	CreatedAt 			time.Time
 }
+
+type PaginationData struct {
+	NextPage 		int
+	PreviousPage	int
+	CurrentPage		int
+}

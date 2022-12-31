@@ -2,12 +2,14 @@ package main
 
 import (
 	"fmt"
+	"main/Blogger/data"
+	"net/http"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/lib/pq"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"main/Blogger/data"
-	"net/http"
 )
 
 const POSTGRES_USER = "postgres"
@@ -35,15 +37,15 @@ func main() {
 
 	r.GET("/", home)
 	r.GET("/posts", posts)
+	r.GET("/post", post)
 	r.GET("/posts/page/:page", posts)
 
 	r.Run()
 }
 
-func home(c *gin.Context) {
-
-
-	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Rows()
+func post(c *gin.Context) {
+ 
+	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Limit(2).Rows()
 	  if err != nil {
 		fmt.Println(err)
 	} 
@@ -58,15 +60,44 @@ func home(c *gin.Context) {
 			fmt.Println(err)
 		}
 		allposts = append(allposts, post)
-		
+
 	  }
 
 
-	c.HTML(http.StatusOK, "home.html", gin.H{"post": allposts[0], "title": "IT", "short": "Why its so cool ?"})
+	c.HTML(http.StatusOK, "home.html", gin.H{"posts": allposts, "title": "IT", "short": "Why its so cool ?", })
+
+}
+
+func home(c *gin.Context) {
+	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Limit(2).Rows()
+	  if err != nil {
+		fmt.Println(err)
+	} 
+
+	post := data.UserPost{}
+	allposts := []data.UserPost{}
+
+	for rows.Next() {
+	
+		err := rows.Scan(&post.ID, &post.UserFirstName, &post.UserLastName, &post.Title, &post.Description, &post.Short, &post.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		allposts = append(allposts, post)
+
+	  }
+
+
+	c.HTML(http.StatusOK, "home.html", gin.H{"posts": allposts, "title": "IT", "short": "Why its so cool ?"})
 
 }
 
 func posts(c *gin.Context) {
+
+	pageStr := c.Param("page")
+	page, _ :=strconv.Atoi(pageStr)
+	// offset := (page - 1) * 10
+
 	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Rows()
 	  if err != nil {
 		fmt.Println(err)
@@ -86,6 +117,6 @@ func posts(c *gin.Context) {
 	  }
 
 
-	c.HTML(http.StatusOK, "posts.html", gin.H{"posts": allposts, "title": "Programming", "short": "Learn IT with us !"})
+	c.HTML(http.StatusOK, "posts.html", gin.H{"posts": allposts, "title": "Programming", "short": "Learn IT with us !", "pagination":data.PaginationData{NextPage:page+1, PreviousPage: page-1, CurrentPage:page}})
 
 }
