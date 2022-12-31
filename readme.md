@@ -23,9 +23,14 @@ Build the Docker containers:
 docker-compose build
 ```
 
-Run the Docker containers:
+Run the Docker container:
 ```
 docker-compose up
+```
+
+Run the Website:
+```
+go run main.go
 ```
 
 The website will be running on localhost:8080.
