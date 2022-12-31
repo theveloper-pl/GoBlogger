@@ -38,10 +38,15 @@ func main() {
 
 	r.GET("/", home)
 	r.GET("/posts", posts)
+	r.GET("/about", about)
 	r.GET("/post/:id", post)
 	r.GET("/posts/page/:page", posts)
 
 	r.Run()
+}
+
+func about(c *gin.Context){
+	c.HTML(http.StatusOK, "about.html", gin.H{"title": "Who am I ?", "short": "And what is this website ?", })	
 }
 
 func post(c *gin.Context) {
@@ -67,8 +72,7 @@ func post(c *gin.Context) {
 
 	  }
 
-	fmt.Printf("%#v",post)
-	c.HTML(http.StatusOK, "post.html", gin.H{"post": post, "title": "IT", "short": "Why its so cool ?", })
+	c.HTML(http.StatusOK, "post.html", gin.H{"post": post, "title": post.Title, "short": post.Short, })
 
 }
 
