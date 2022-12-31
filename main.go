@@ -1,117 +1,91 @@
 package main
 
 import (
-  "net/http"
-  "database/sql"
-  "github.com/gin-gonic/gin"
-  "log"
-  "fmt"
-  "time"
-  "main/Blogger/data"
-  _ "github.com/lib/pq"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	_ "github.com/lib/pq"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"main/Blogger/data"
+	"net/http"
 )
 
 const POSTGRES_USER = "postgres"
 const POSTGRES_PASSWORD = "password"
 const POSTGRES_DB = "blogger"
 
-var db *sql.DB
+var DB *gorm.DB
+
+const dsn = "host=localhost user=postgres password=password dbname=blogger port=5432 sslmode=disable TimeZone=Asia/Shanghai"
+
+func setup() {
+	var db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err)
+	}
+	DB = db
+	db.AutoMigrate(&data.User{}, &data.Post{})
+}
 
 func main() {
-  db = initDB()	
-  err := db.Ping()
-  if err != nil {
-	fmt.Println(err)
-  }
+	setup()
+	r := gin.Default()
+	r.LoadHTMLGlob("templates/*")
+	r.Static("/static", "./static")
 
-  r := gin.Default()
-  r.LoadHTMLGlob("templates/*")
-  r.Static("/static", "./static")
+	r.GET("/", home)
+	r.GET("/posts", posts)
+	r.GET("/posts/page/:page", posts)
 
-  
-  r.GET("/", home)
-  r.GET("/posts", posts)
-  r.GET("/posts/page/:page", posts)
-
-  r.Run() 
+	r.Run()
 }
 
-func home(c *gin.Context){
+func home(c *gin.Context) {
 
-	models := data.New(db)
-	posts, err := models.Post.GetAll(4)
-	if err != nil {
+
+	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Rows()
+	  if err != nil {
 		fmt.Println(err)
-	  }
+	} 
 
+	post := data.UserPost{}
+	allposts := []data.UserPost{}
 
-	dataMap := make(map[string]any)
-	dataMap["posts"] = posts
-
-	c.HTML(http.StatusOK,"home.html",gin.H{"Data": dataMap,"title":"IT","short":"Why its so cool ?"},)
-
-}
-
-func posts(c *gin.Context){
-
-	models := data.New(db)
-	posts, err := models.Post.GetAll()
-	if err != nil {
-		fmt.Println(err)
-	  }
-
-
-	dataMap := make(map[string]any)
-	dataMap["posts"] = posts
-
-	c.HTML(http.StatusOK,"posts.html",gin.H{"Data": dataMap,"title":"Programming","short":"Learn IT with us !"},)
-
-}
-
-
-func initDB() *sql.DB{
-	conn := connectToDB()
-	if conn == nil {
-		log.Panic("Cant connect to database")
-	}
-	return conn
-}
-
-func connectToDB() *sql.DB{
-	counts :=0
-
-	for {
-
-		if counts > 5 {
-			return nil
-		}
-
-		connection, err := openDB()
+	for rows.Next() {
+	
+		err := rows.Scan(&post.ID, &post.UserFirstName, &post.UserLastName, &post.Title, &post.Description, &post.Short, &post.CreatedAt)
 		if err != nil {
-			log.Println("Postgres not yet ready...")
-		} else {
-			log.Println("Connected to database !")
-			return connection
+			fmt.Println(err)
 		}
-		counts += 1
-		time.Sleep(time.Second * 2)
-	}
+		allposts = append(allposts, post)
+		
+	  }
+
+
+	c.HTML(http.StatusOK, "home.html", gin.H{"post": allposts[0], "title": "IT", "short": "Why its so cool ?"})
 
 }
 
-func openDB() (*sql.DB, error){
-	connStr := fmt.Sprintf("postgresql://%s:%s@0.0.0.0:5432/%s?sslmode=disable",POSTGRES_USER,POSTGRES_PASSWORD, POSTGRES_DB)
-	db, err := sql.Open("postgres", connStr)
+func posts(c *gin.Context) {
+	rows, err := DB.Table("posts").Select("posts.id, users.first_name, users.last_name, posts.title, posts.description, posts.short, posts.created_at").Joins("left join users on users.id = user_id").Rows()
+	  if err != nil {
+		fmt.Println(err)
+	} 
 
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-	err = db.Ping()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	post := data.UserPost{}
+	allposts := []data.UserPost{}
 
-	return db, nil
+	for rows.Next() {
+	
+		err := rows.Scan(&post.ID, &post.UserFirstName, &post.UserLastName, &post.Title, &post.Description, &post.Short, &post.CreatedAt)
+		if err != nil {
+			fmt.Println(err)
+		}
+		allposts = append(allposts, post)
+		
+	  }
+
+
+	c.HTML(http.StatusOK, "posts.html", gin.H{"posts": allposts, "title": "Programming", "short": "Learn IT with us !"})
+
 }

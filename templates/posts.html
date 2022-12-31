@@ -5,8 +5,7 @@
             <div class="row gx-4 gx-lg-5 justify-content-center">
                 <div class="col-md-10 col-lg-8 col-xl-7">
                     <!-- Post preview-->
-
-                        {{range index .Data "posts"}}
+                        {{range .posts}}
                     <div class="post-preview">
                         <a href="post.html">
                             <h2 class="post-title">{{.Title}}</h2>
@@ -14,7 +13,7 @@
                         </a>
                         <p class="post-meta">
                             Posted by
-                            <a href="#!">{{.UserFirstName}} {{.UserLastName}}</a>
+                            <a href="#!">{{.UserFirstName}} {{.UserFirstName}}</a>
                             on {{.CreatedAt.Format "2006 Jan 02"}}
                         </p>
                     </div>
