@@ -67,6 +67,7 @@ func (u *Post) GetAll(limit ...int) ([]*Post, error) {
 			return nil, err
 		}
 
+
 		posts = append(posts, &post)
 	}
 
