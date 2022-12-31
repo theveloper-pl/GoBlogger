@@ -1,6 +1,7 @@
         {{ template "header.html" .}}
         {{/* {{ .title }} */}}
         <!-- Main Content-->
+        {{ if .pagination}}
         <div class="container px-4 px-lg-5">
             <div class="row gx-4 gx-lg-5 justify-content-center">
                 <div class="col-md-10 col-lg-8 col-xl-7">
@@ -20,9 +21,80 @@
                     <hr class="my-4" />
                         {{end}}
 
-                    <div class="d-flex justify-content-end mb-4"><a class="btn btn-primary text-uppercase" href="/allposts">All posts →</a></div>
+                    <div class="d-flex justify-content-center mb-4">
+                        <nav aria-label="...">
+                            <ul class="pagination">
+                            {{ if (gt .pagination.CurrentPage 1) }}
+                              <li class="page-item">
+                                <a class="page-link" href="/posts/page/{{ .pagination.PreviousPage }}" tabindex="-1">Previous</a>
+                              </li>
+                              {{else}}
+                              <li class="page-item disabled">
+                                <a class="page-link" href="/posts/page/{{ .pagination.PreviousPage }}" tabindex="-1">Previous</a>
+                              </li>
+                                {{end}}
+
+
+                                {{ if (lt .pagination.CurrentPage 2) }}
+
+                                {{else}}
+                                <li class="page-item"><a class="page-link" href="/posts/page/{{ .pagination.PreviousPage }}">{{ .pagination.PreviousPage }}</a></li>
+                                {{end}}
+
+                              <li class="page-item disabled">
+                                <a class="page-link" href="/posts/page/{{ .pagination.CurrentPage }}">{{ .pagination.CurrentPage }}<span class="sr-only">(current)</span></a>
+                              </li>
+
+                                {{ if (gt .pagination.NextPage .pagination.TotalPages) }}
+
+                                {{else}}
+                                <li class="page-item"><a class="page-link" href="/posts/page/{{ .pagination.NextPage }}">{{ .pagination.NextPage }}</a></li>
+                                {{end}}
+
+
+                              
+
+
+                              {{ if (lt .pagination.CurrentPage .pagination.TotalPages) }}
+                              <li class="page-item">
+                                <a class="page-link" href="/posts/page/{{ .pagination.NextPage }}">Next</a>
+                              </li>
+                              {{else}}
+                              <li class="page-item disabled">
+                                <a class="page-link" href="/posts/page/{{ .pagination.NextPage }}">Next</a>
+                              </li>
+                              {{end}}
+                            </ul>
+                          </nav>   
+                    </div>
                 </div>
             </div>
         </div>
+        {{else}}
+        <div class="container px-4 px-lg-5">
+            <div class="row gx-4 gx-lg-5 justify-content-center">
+                <div class="col-md-10 col-lg-8 col-xl-7">
+                    <!-- Post preview-->
+                        {{range .posts}}
+                    <div class="post-preview">
+                        <a href="/">
+                            <h2 class="post-title">{{.Title}}</h2>
+                            <h3 class="post-subtitle">{{.Short}}</h3>
+                        </a>
+                        <p class="post-meta">
+                            Posted by
+                            <a href="#!">{{.UserFirstName}} {{.UserFirstName}}</a>
+                            on {{.CreatedAt.Format "2006 Jan 02"}}
+                        </p>
+                    </div>
+                    <hr class="my-4" />
+                        {{end}}
+
+                    <div class="d-flex justify-content-end mb-4"><a class="btn btn-primary text-uppercase" href="/posts">All posts →</a></div>
+                </div>
+            </div>
+        </div>
+        {{end}}
+
     
 {{ template "footer.html" .}}
