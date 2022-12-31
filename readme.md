@@ -15,7 +15,7 @@ git clone https://github.com/theveloper-pl/GoBlogger.git
 
 Navigate to the project directory:
 ```
-cd golang-gin-gorm-blog
+cd GoBlogger
 ```
 
 Build the Docker containers:
