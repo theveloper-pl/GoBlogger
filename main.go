@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"main/Blogger/data"
+	"github.com/theveloper-pl/GoBlogger/data"
 	"math"
 	"net/http"
 	"strconv"
