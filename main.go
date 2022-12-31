@@ -26,10 +26,12 @@ func main() {
 
   r := gin.Default()
   r.LoadHTMLGlob("templates/*")
-  r.Static("/static", "./static/")
+  r.Static("/static", "./static")
 
-  r.GET("", home)
-  r.GET("allposts", allposts)
+  
+  r.GET("/", home)
+  r.GET("/posts", posts)
+  r.GET("/posts/page/:page", posts)
 
   r.Run() 
 }
@@ -46,11 +48,11 @@ func home(c *gin.Context){
 	dataMap := make(map[string]any)
 	dataMap["posts"] = posts
 
-	c.HTML(http.StatusOK,"home.html",gin.H{"Data": dataMap,},)
+	c.HTML(http.StatusOK,"home.html",gin.H{"Data": dataMap,"title":"IT","short":"Why its so cool ?"},)
 
 }
 
-func allposts(c *gin.Context){
+func posts(c *gin.Context){
 
 	models := data.New(db)
 	posts, err := models.Post.GetAll()
@@ -62,7 +64,7 @@ func allposts(c *gin.Context){
 	dataMap := make(map[string]any)
 	dataMap["posts"] = posts
 
-	c.HTML(http.StatusOK,"allposts.html",gin.H{"Data": dataMap,},)
+	c.HTML(http.StatusOK,"posts.html",gin.H{"Data": dataMap,"title":"Programming","short":"Learn IT with us !"},)
 
 }
 
